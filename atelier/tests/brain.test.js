@@ -48,5 +48,19 @@ describe('Tests unitaires du cerveau de Cap Web (brain.js)', () => {
       assert.notEqual(repReservation, repInconnu);
       assert.ok(repReservation.toLowerCase().includes('réservation') || repReservation.toLowerCase().includes('midi'));
     });
+
+    it('répond directement aux trois questions du thème sans déclencher le repli', () => {
+      const repQ1 = replyTo("Quel est le plat du jour aujourd'hui ?");
+      const repQ2 = replyTo("Quels sont les horaires pour réserver une table ?");
+      const repQ3 = replyTo("Quels sont les prochains événements prévus ?");
+      const repli = replyTo("azertyuiop");
+
+      assert.notEqual(repQ1, repli);
+      assert.notEqual(repQ2, repli);
+      assert.notEqual(repQ3, repli);
+      assert.ok(repQ1.includes('saumon') || repQ1.includes('menu'));
+      assert.ok(repQ2.includes('Réservations'));
+      assert.ok(repQ3.includes('événements'));
+    });
   });
 });
