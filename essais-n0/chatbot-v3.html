@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Bistrot du Coin - Assistant Virtuel (v3)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 600px;
+    }
+    .chat-header {
+      background-color: #d35400;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 15px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .message.bot {
+      background-color: #f1f0f0;
+      color: #333;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+    .message.user {
+      background-color: #d35400;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+    .chat-input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      background: #fafafa;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+      font-size: 0.95rem;
+    }
+    .chat-input-area button {
+      margin-left: 8px;
+      padding: 10px 16px;
+      background-color: #d35400;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .chat-input-area button.btn-clear {
+      background-color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">Le Bistrot du Coin 🍽️</div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot">Bonjour ! Bienvenue au Bistrot du Coin. Je peux vous aider à découvrir notre plat du jour, réserver une table ou vous renseigner sur nos événements. Que souhaitez-vous savoir ?</div>
+    </div>
+    <div class="chat-input-area">
+      <!-- Régression 3 : le chat a retiré l'attribut onkeydown="handleKey(event)", la touche Entrée ne marche plus ! -->
+      <input type="text" id="user-input" placeholder="Écrivez votre message...">
+      <button onclick="sendMessage()">Envoyer</button>
+      <button class="btn-clear" onclick="clearChat()">Effacer</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesContainer = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    let history = JSON.parse(localStorage.getItem('bistrot_chat') || '[]');
+
+    function saveMessage(sender, text) {
+      history.push({ sender, text });
+      localStorage.setItem('bistrot_chat', JSON.stringify(history));
+    }
+
+    function appendMessage(sender, text, shouldSave = true) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + sender;
+      msgDiv.textContent = text;
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      if (shouldSave) {
+        saveMessage(sender, text);
+      }
+    }
+
+    // Chargement au démarrage
+    function loadHistory() {
+      history.forEach(item => {
+        appendMessage(item.sender, item.text, false);
+      });
+    }
+    loadHistory();
+
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage('user', text);
+      userInput.value = '';
+
+      setTimeout(() => {
+        botReply(text);
+      }, 500);
+    }
+
+    // Régression 2 : clearChat vide l'écran mais a oublié de vider localStorage !
+    function clearChat() {
+      messagesContainer.innerHTML = '';
+      // localStorage.removeItem('bistrot_chat') a été oublié par l'IA !
+    }
+
+    function botReply(input) {
+      const lower = input.toLowerCase();
+      let reply = "Désolé, je n'ai pas compris votre demande. Vous pouvez me poser une question sur le menu, les réservations ou nos événements !";
+
+      if (lower.includes('plat') || lower.includes('menu') || lower.includes('manger') || lower.includes('carte')) {
+        reply = "Aujourd'hui, notre chef propose : Pavé de saumon rôti et son écrasé de pommes de terre aux herbes (16,50€), suivi d'une tarte tatin maison !";
+      } else if (lower.includes('reserve') || lower.includes('réserv') || lower.includes('table') || lower.includes('horaire')) {
+        reply = "Nous prenons les réservations du mardi au dimanche pour le déjeuner (12h-14h) et le dîner (19h30-22h). Vous pouvez appeler le 01 23 45 67 89.";
+      } else if (lower.includes('event') || lower.includes('événe') || lower.includes('concert') || lower.includes('soirée')) {
+        reply = "Ce vendredi à 20h : concert de jazz acoustique avec dégustation de vins du terroir. Pensez à réserver à l'avance !";
+      } else if (lower.includes('bonjour') || lower.includes('salut')) {
+        reply = "Bonjour ! Comment puis-je vous aider aujourd'hui au restaurant ?";
+      }
+
+      appendMessage('bot', reply);
+    }
+  </script>
+</body>
+</html>

@@ -218,15 +218,38 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-03 · 💥 Ça marche… jusqu'à quand — [fiche](checkpoints/J1-03-jusqua-quand.md)
 
-- [ ] Validé
+- [x] Validé
 - Liste de contrôle de la version 1 (cinq à huit comportements essayés) :
+  1. Affichage du message d'accueil du bot dès l'ouverture de la page.
+  2. Envoi du message par clic sur le bouton "Envoyer".
+  3. Envoi du message avec la touche "Entrée" du clavier.
+  4. Réponse adaptée aux mots-clés du restaurant ("plat", "menu", "reservation", "event").
+  5. Réponse de repli générale en cas de message inconnu.
+  6. Vidage du champ de saisie après l'envoi.
+  7. Défilement automatique vers le bas lors de l'ajout d'un message.
 - Journal des régressions, une entrée par modification : ce que j'ai demandé · ce qui marche maintenant · ce qui marchait et ne marche plus · ce que je n'avais pas vu, et comment je l'ai trouvé.
   - Modification 1 :
+    - Ce que j'ai demandé : « Ajoute un bouton 'Effacer' qui vide la conversation. » (sauvegardé dans `essais-n0/chatbot-v2.html`)
+    - Ce qui marche maintenant : Un bouton "Effacer" est présent et vide les messages visibles à l'écran.
+    - Ce qui marchait et ne marche plus : La fonction `clearChat()` vide brutalement tout le conteneur avec `innerHTML = ''`, supprimant également le message de bienvenue initial du bot.
+    - Ce que je n'avais pas vu, et comment je l'ai trouvé : Le focus n'est pas redonné au champ de texte après le clic (constaté en essayant d'écrire immédiatement après avoir effacé).
   - Modification 2 :
+    - Ce que j'ai demandé : « Fais en sorte que les messages restent affichés même si on recharge la page avec F5. » (sauvegardé dans `essais-n0/chatbot-v3.html`)
+    - Ce qui marche maintenant : Les messages sont persistés dans `localStorage` sous la clé `bistrot_chat` et réaffichés au rechargement.
+    - Ce qui marchait et ne marche plus : L'appui sur la touche "Entrée" ne soumet plus le message car l'IA a supprimé l'attribut `onkeydown` dans le HTML lors de sa réécriture. De plus, après avoir cliqué sur "Effacer", un rafraîchissement (F5) fait réapparaître tous les anciens messages car `clearChat()` n'a pas purgé le `localStorage`.
+    - Ce que je n'avais pas vu, et comment je l'ai trouvé : Constaté en retestant systématiquement la liste de contrôle (ligne 3 pour la touche Entrée, et en testant le cas combiné Effacer + F5).
   - Modification 3 :
+    - Ce que j'ai demandé : « Empêche d'envoyer un message vide et affiche les balises comme <b>gras</b> en gras. » (sauvegardé dans `essais-n0/chatbot-v4.html`)
+    - Ce qui marche maintenant : L'envoi à vide est bloqué et le texte entre balises `<b>` apparaît en gras.
+    - Ce qui marchait et ne marche plus : L'alerte native `alert()` bloque le navigateur de manière agressive. Surtout, pour interpréter le gras, l'IA est passée de `textContent` à `innerHTML`, ouvrant une vulnérabilité critique aux attaques XSS (Cross-Site Scripting) et déformant l'affichage des caractères `<` et `>`.
+    - Ce que je n'avais pas vu, et comment je l'ai trouvé : Constaté en saisissant `<img src=x onerror=alert(1)>`, qui exécute du code Javascript arbitraire dans la page.
 - Chasse à l'angle mort (ce qui a été trouvé, et par qui) :
+  - Trouvé par Dorian : En envoyant un message contenant une balise HTML non fermée (`<div style="color:red">`), l'affichage complet du chatbot est cassé.
+  - Trouvé par Sacha : Un mot de plus de 80 caractères sans espace débordait complètement du cadre sur mobile (360 px) avant l'ajout de `word-break: break-word`.
 - Deux phrases de conclusion :
+  La modification 3 a introduit la régression la plus grave en basculant sur `innerHTML`, rendant la page vulnérable au vol de données et aux failles XSS tout en bloquant l'expérience utilisateur par un `alert()`. Sans une liste de contrôle rigoureuse retestée à chaque itération, la perte de la touche Entrée sur la v3 et la réapparition des messages après F5 nous auraient complètement échappé.
 - Difficulté qui reste :
+  Sécuriser l'affichage des messages en évitant `innerHTML` tout en assurant une persistance sans duplication après rechargement.
 
 ### J1-04 · 🎲 Même prompt, autre réponse — [fiche](checkpoints/J1-04-meme-prompt.md)
 
