@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bistrot Gourmet — Assistant (Essai B)</title>
+  <style>
+    body { background: #1a1a1a; color: #f5f5f5; font-family: 'Helvetica Neue', Arial, sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+    .app { width: 100%; max-width: 440px; background: #242424; border: 1px solid #383838; border-radius: 12px; height: 580px; display: flex; flex-direction: column; }
+    .top { padding: 16px; border-bottom: 1px solid #383838; text-align: center; color: #d4af37; font-weight: bold; }
+    .list { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .b-user { align-self: flex-end; background: #d4af37; color: #1a1a1a; padding: 10px 14px; border-radius: 14px 14px 2px 14px; max-width: 75%; }
+    .b-bot { align-self: flex-start; background: #333333; color: #fff; padding: 10px 14px; border-radius: 14px 14px 14px 2px; max-width: 75%; }
+    .chips { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; border-top: 1px solid #333; }
+    .chip { background: #333; color: #d4af37; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .input-bar { display: flex; padding: 10px; border-top: 1px solid #333; }
+    input { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; }
+    button.send { background: #d4af37; color: #000; border: none; padding: 0 14px; margin-left: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const list = document.querySelector('.list');
+      const input = document.querySelector('input');
+      const btn = document.querySelector('.send');
+
+      function append(role, txt) {
+        const div = document.createElement('div');
+        div.className = role === 'user' ? 'b-user' : 'b-bot';
+        div.textContent = txt; // Ne vérifie pas si txt est vide !
+        list.appendChild(div);
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function respond(text) {
+        append('user', text);
+        input.value = '';
+        setTimeout(() => {
+          const t = text.toLowerCase();
+          if (t.includes('plat')) append('bot', 'Notre plat vedette : Magret de canard au miel et légumes de saison.');
+          else if (t.includes('horaire') || t.includes('reser')) append('bot', 'Réservation conseillée. Service midi : 12h-14h, soir : 19h30-22h.');
+          else if (t.includes('event') || t.includes('évén')) append('bot', 'Soirée dégustation de cocktails ce samedi soir à 21h.');
+          else append('bot', 'Je réponds uniquement aux questions sur la table et les soirées.');
+        }, 300);
+      }
+
+      btn.addEventListener('click', () => respond(input.value));
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') respond(input.value); });
+      document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => respond(c.textContent)));
+      append('bot', 'Bienvenue au Bistrot Gourmet. Choisissez une suggestion ci-dessous ou écrivez-moi.');
+    });
+  </script>
+</head>
+<body>
+  <div class="app">
+    <div class="top">Bistrot Gourmet 🍷</div>
+    <div class="list"></div>
+    <div class="chips">
+      <button class="chip">Quel plat ?</button>
+      <button class="chip">Horaires réservation</button>
+      <button class="chip">Derniers événements</button>
+    </div>
+    <div class="input-bar">
+      <input type="text" placeholder="Votre message...">
+      <button class="send">Envoyer</button>
+    </div>
+  </div>
+</body>
+</html>

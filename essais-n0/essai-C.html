@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Table Voisine - Chatbot C</title>
+  <style>
+    body { font-family: 'Georgia', serif; background: #faf8f5; color: #443; margin: 0; padding: 20px; }
+    .box { max-width: 500px; margin: 0 auto; background: #fff; border: 2px solid #8e44ad; border-radius: 4px; padding: 15px; }
+    h2 { margin-top: 0; color: #8e44ad; text-align: center; font-style: italic; }
+    #discussion { height: 350px; overflow-y: scroll; border: 1px dashed #ccc; padding: 10px; margin-bottom: 12px; background: #fdfefe; }
+    .ligne { margin-bottom: 10px; line-height: 1.5; font-family: Arial, sans-serif; font-size: 14px; }
+    .client { color: #8e44ad; font-weight: bold; }
+    .resto { color: #27ae60; font-weight: bold; }
+    .controls { display: flex; gap: 8px; }
+    #txt { flex: 1; padding: 8px; border: 1px solid #8e44ad; }
+    #btnSubmit { background: #8e44ad; color: #fff; border: none; padding: 8px 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>La Table Voisine — Restaurant</h2>
+    <div id="discussion">
+      <div class="ligne"><span class="resto">Restaurant :</span> Bonjour chers voisins ! Posez-nous vos questions.</div>
+    </div>
+    <div class="controls">
+      <input type="text" id="txt" placeholder="Une question...">
+      <button id="btnSubmit" onclick="talk()">Demander</button>
+    </div>
+  </div>
+
+  <script>
+    const KNOWLEDGE_BASE = [
+      { keys: ['plat', 'manger', 'carte', 'midi'], ans: "Notre plat vedette est le Risotto crémeux aux champignons des bois (14€)." },
+      { keys: ['horaire', 'heure', 'reserver', 'reservation'], ans: "Service midi de 12h à 14h, soir de 19h à 21h30 du mardi au samedi." },
+      { keys: ['evenement', 'event', 'animation', 'concert'], ans: "Ce samedi : Brunch musical et expo de peintres locaux dès 11h30." }
+    ];
+
+    function talk() {
+      const field = document.getElementById('txt');
+      const val = field.value.trim();
+      if (!val) return;
+
+      const d = document.getElementById('discussion');
+      d.innerHTML += '<div class="ligne"><span class="client">Voisin :</span> ' + val + '</div>';
+      field.value = '';
+
+      let answer = "Nous n'avons pas d'information précise sur ce sujet. Venez nous voir au restaurant !";
+      const low = val.toLowerCase();
+      for (const item of KNOWLEDGE_BASE) {
+        if (item.keys.some(k => low.includes(k))) {
+          answer = item.ans;
+          break;
+        }
+      }
+
+      setTimeout(() => {
+        d.innerHTML += '<div class="ligne"><span class="resto">Restaurant :</span> ' + answer + '</div>';
+        d.scrollTop = d.scrollHeight;
+      }, 350);
+    }
+  </script>
+</body>
+</html>

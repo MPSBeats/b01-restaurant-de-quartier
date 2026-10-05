@@ -253,11 +253,22 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-04 · 🎲 Même prompt, autre réponse — [fiche](checkpoints/J1-04-meme-prompt.md)
 
-- [ ] Validé
+- [x] Validé
 - Le prompt de référence (identique aux trois essais) :
+  `Fais-moi un chatbot pour un restaurant de quartier qui permet aux habitants de découvrir un plat, choisir un horaire de réservation et s'informer des derniers événements, dans une seule page HTML que j'ouvre dans mon navigateur.`
 - Le tableau des écarts (trois colonnes A, B, C ; au moins quatre critères ; des faits, pas des impressions) :
+
+  | Critère | A (`essai-A.html`) | B (`essai-B.html`) | C (`essai-C.html`) |
+  |---|---|---|---|
+  | Structure du code (fichiers, longueur, place du script) | 71 lignes, style épuré clair, script placé en bas du `body` avec `addEventListener('submit')` sur le formulaire. | 86 lignes, style thème sombre (dark mode), script placé dans le `<head>` avec écouteur `DOMContentLoaded`. | 68 lignes, style rétro Georgia avec bordure violette, script en bas du `body` avec gestionnaire inline `onclick="talk()"`. |
+  | Comportement à l'envoi (que répond le bot, sur quel thème) | Envoi par formulaire (clic ou Entrée). Réponses sur 'plat' (boeuf bourguignon), 'horaire' (12h-14h30/19h-22h30) et 'événement' (quiz musical). Délai de 400ms. | Envoi par clic bouton ou touche Entrée. Propose 3 boutons de suggestions rapides (chips). Répond plat (magret), horaires et soirée cocktails. Délai de 300ms. | Envoi uniquement au clic sur "Demander" (Entrée ne fait rien). Moteur basé sur un tableau `KNOWLEDGE_BASE`. Répond plat (risotto), horaires et brunch musical. |
+  | Ce qui manque (message vide, mémoire, bouton effacer…) | Pas de message d'accueil au chargement, pas de mémoire, pas de bouton effacer. Refuse le message vide avec `if (!val) return;`. | Pas de mémoire, pas de bouton effacer. Accepte l'envoi de messages vides (affiche une bulle vide à l'écran). | Pas de mémoire, pas de bouton effacer, pas d'envoi avec la touche Entrée. Utilise `innerHTML +=` dangereux. |
+  | Ce qui diffère (noms, textes, réponses, ton) | Nom : « Le Petit Zinc ». Ton neutre et direct. Identifiants et classes : `#chat-form`, `#entry`, `.msg-bot`, `.msg-user`. | Nom : « Bistrot Gourmet 🍷 ». Ton élégant et moderne. Identifiants et classes : `.chips`, `.b-user`, `.b-bot`. | Nom : « La Table Voisine ». Ton chaleureux de voisinage (« Voisin », « Chers voisins »). Classes `.client` et `.resto`. |
+
 - Une phrase de conclusion (ce que ces écarts autorisent, ce qu'ils interdisent de supposer) :
+  Ces écarts nous autorisent à nous inspirer de l'IA pour prototyper rapidement des styles ou des idées d'interface, mais ils nous interdisent formellement de supposer une stabilité dans l'architecture technique, l'accessibilité au clavier ou la sécurité du code généré.
 - Difficulté qui reste :
+  Constater qu'à prompt identique, l'IA produit trois structures et logiques de code radicalement différentes, ce qui rend le niveau N0 ("subir") dangereux en production.
 
 ## L'agent (N1 Demander)
 
