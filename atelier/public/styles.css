@@ -48,6 +48,34 @@ h2 {
   overflow-wrap: break-word;
 }
 
+#suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#suggestions li {
+  margin: 0;
+}
+
+#suggestions button {
+  background: transparent;
+  color: var(--texte);
+  border: 1px solid var(--bord);
+  border-radius: 1rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+#suggestions button:hover {
+  background: #f0f0f0;
+}
+
 form {
   display: flex;
   flex-direction: column;

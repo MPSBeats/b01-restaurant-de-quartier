@@ -344,20 +344,32 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-07 · 👣 Petits pas — [fiche](checkpoints/J1-07-petits-pas.md)
 
-- [ ] Validé
-- Preuve (découpage écrit avant la première demande, trois diffs relus, un refus écrit, un commit par étape acceptée, trois boutons de questions qui fonctionnent) :
+- [x] Validé
+- Preuve (découpage écrit avant la première demande, trois diffs relus, un refus écrit, un commit par étape acceptée, trois boutons de questions qui fonctionnent) : Trois boutons fonctionnels sous le formulaire, clic copie la question dans le textarea sans soumettre, focus activé, statut mis à jour, refus d'un onclick consigné, commits enregistrés.
 - La tâche, mes trois questions et mon découpage en trois étapes (écrit avant la première demande d'écriture) :
+  - Tâche : Afficher sous le formulaire nos 3 questions de J1-01 en boutons ; un clic sur un bouton copie la question dans le champ `#message` sans l'envoyer, donne le focus au champ et affiche un statut explicatif.
+  - Nos trois questions :
+    1. « Quel est le plat du jour aujourd'hui ? »
+    2. « Quels sont les horaires pour réserver une table ? »
+    3. « Quels sont les prochains événements prévus ? »
+  - Découpage en 3 étapes :
+    - Étape 1 : Dans `public/index.html` seulement, ajout de `ul#suggestions` avec 3 boutons `type="button"`.
+    - Étape 2 : Dans `public/js/app.js` seulement, écouteur de clic pour copier le texte dans le champ `#message` sans soumission.
+    - Étape 3 : Dans `public/js/app.js`, ajout du focus sur `#message` et mise à jour de `#status` avec le message "Question copiée : modifiez-la ou envoyez-la.".
 - Ce que l'agent a proposé comme découpage, ce que j'ai gardé, pourquoi :
+  L'agent a proposé de tout faire en une seule demande avec injection de scripts inline et soumission directe. Nous avons conservé notre découpage en 3 petites étapes distinctes pour garantir que chaque diff soit inférieur à 15 lignes et parfaitement testable de manière isolée.
 - Mon refus écrit : ce que l'agent avait fait, pourquoi je le refuse, ce que j'ai demandé à la place :
+  L'agent avait inséré un attribut `onclick="submitQuestion(...)"` directement dans le HTML de l'étape 1, ce qui envoyait immédiatement le formulaire. Nous l'avons refusé car la consigne exige explicitement que le clic copie la question sans l'envoyer pour permettre la relecture/modification, et nous avons exigé des balises `<button type="button">` pures sans JavaScript inline.
 - Difficulté qui reste :
+  Maintenir la discipline des petits pas face à la tendance de l'agent à anticiper et en faire trop d'un coup.
 
 **Journal des décisions.** Une ligne par demande faite à l'agent, de J1-07 à J1-09 (les trois étapes de J1-07, puis la correction de J1-08, puis les six demandes de J1-09) : la demande copiée, le diff relu (fichiers, nombre de lignes, une chose que je n'avais pas demandée ?), le verdict et pourquoi.
 
 | N° | Demande | Diff relu | Verdict et pourquoi |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Étape 1 : Dans public/index.html, ajouter ul#suggestions avec 3 boutons type="button" pour nos 3 questions, sans JS ni autre fichier. | +8 lignes dans index.html. L'agent avait ajouté un onclick non demandé. | Refusé puis corrigé : rejet du onclick inline, conservation des boutons purs. |
+| 2 | Étape 2 : Dans public/js/app.js, ajouter l'écouteur de clic pour copier le texte du bouton dans textarea#message sans soumettre. | +12 lignes dans app.js. Écouteur forEach sur les boutons de suggestions. | Accepté : le texte est copié fidèlement sans déclencher l'envoi du formulaire. |
+| 3 | Étape 3 : Dans public/js/app.js, ajouter le focus sur le champ et la mise à jour du statut après copie. | +5 lignes dans app.js (appel de focus() et statut textContent). | Accepté : l'utilisateur est guidé et peut immédiatement éditer le texte. |
 | 4 | | | |
 | 5 | | | |
 | 6 | | | |
