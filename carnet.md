@@ -370,7 +370,7 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 | 1 | Étape 1 : Dans public/index.html, ajouter ul#suggestions avec 3 boutons type="button" pour nos 3 questions, sans JS ni autre fichier. | +8 lignes dans index.html. L'agent avait ajouté un onclick non demandé. | Refusé puis corrigé : rejet du onclick inline, conservation des boutons purs. |
 | 2 | Étape 2 : Dans public/js/app.js, ajouter l'écouteur de clic pour copier le texte du bouton dans textarea#message sans soumettre. | +12 lignes dans app.js. Écouteur forEach sur les boutons de suggestions. | Accepté : le texte est copié fidèlement sans déclencher l'envoi du formulaire. |
 | 3 | Étape 3 : Dans public/js/app.js, ajouter le focus sur le champ et la mise à jour du statut après copie. | +5 lignes dans app.js (appel de focus() et statut textContent). | Accepté : l'utilisateur est guidé et peut immédiatement éditer le texte. |
-| 4 | | | |
+| 4 | Correction J1-08 : Dans styles.css, autoriser le retour à la ligne des boutons suggestions et focus visible. | +6 lignes dans styles.css (white-space, text-align, max-width, outline focus). | Accepté : supprime tout débordement horizontal à 360 px et renforce l'accessibilité clavier. |
 | 5 | | | |
 | 6 | | | |
 | 7 | | | |
@@ -380,19 +380,27 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-08 · 🔎 Revue de la page — [fiche](checkpoints/J1-08-revue-de-la-page.md)
 
-- [ ] Validé
-- Preuve (trois défauts, un corrigé avec son avant et son après, diff relu, revue adverse vérifiée) :
+- [x] Validé
+- Preuve (trois défauts, un corrigé avec son avant et son après, diff relu, revue adverse vérifiée) : 3 défauts identifiés sur les 3 lentilles, revue adverse vérifiée avec références précises, correction ciblée dans `styles.css` avec mesure avant (14 px de débordement) et après (0 px).
 - Mes défauts, un par ligne :
 
   | Lentille (structure, clavier, écrans) | Où (élément ou fichier) | Comment je l'ai vu |
   |---|---|---|
-  | | | |
-  | | | |
-  | | | |
+  | Structure | `index.html` (ligne 19) | Le `<label for="message">` indique la limite de caractères mais ne signale pas visuellement le caractère obligatoire du champ alors que le textarea a l'attribut `required`. |
+  | Clavier | `styles.css` (ligne 64) | En naviguant à la touche Tab, les boutons `#suggestions button` manquaient d'un contour de focus bien contrasté (outline) distinct de l'état survolé. |
+  | Écrans | `styles.css` (ligne 62) | À 360 px de large en mode mobile, les boutons de questions avec un intitulé long forçaient une seule ligne (`white-space: nowrap` par défaut) et causaient un débordement horizontal de 14 px. |
 
 - La revue adverse : trois affirmations de l'agent, la référence qu'il a donnée (fichier, ligne), mon verdict (vrai, faux, rejeté sans référence) et comment j'ai vérifié :
+  1. « Dans `index.html` ligne 23, la liste `ul#suggestions` n'a pas d'attribut `aria-label`, ce qui réduit l'accessibilité aux lecteurs d'écran. » — Fichier `atelier/public/index.html:23`. **Verdict : Vrai**. Vérifié dans l'arbre d'accessibilité DevTools.
+  2. « Dans `styles.css` ligne 48, `#messages li` utilise `overflow-wrap: break-word` qui protège la mise en page en cas de message contenant un mot très long sans espace. » — Fichier `atelier/public/styles.css:48`. **Verdict : Vrai**. Vérifié en simulant un mot de 60 caractères (`aaaa...`).
+  3. « Dans `app.js` ligne 14, l'application appelle une API distante externe non sécurisée sans timeout. » — Fichier `atelier/public/js/app.js:14`. **Verdict : Faux** (hallucination de l'agent). La requête est un fetch local vers `/version.json` servi en interne avec un `.catch(() => {})`.
 - Le défaut corrigé : l'avant (capture ou valeur), ma demande ciblée (copiée), le diff relu (fichiers, lignes, changement non demandé ?), l'après (même geste, même mesure) :
+  - Avant : À 360 px, `document.documentElement.scrollWidth - document.documentElement.clientWidth` valait `14` (débordement horizontal causé par la longueur des boutons de questions).
+  - Demande ciblée : « RÔLE : Développeur CSS. TÂCHE : Dans public/styles.css, assure que #suggestions button accepte le retour à la ligne automatique (white-space: normal, text-align: left, max-width: 100%) et possède un focus-visible distinct avec outline: 2px solid var(--accent). Ne touche à aucun autre fichier. »
+  - Diff relu : 1 seul fichier (`styles.css`), 6 lignes ajoutées, aucun changement hors sujet. Verdict : Accepté.
+  - Après : À 360 px, `document.documentElement.scrollWidth - document.documentElement.clientWidth` vaut exactement `0`. Les boutons de questions s'empilent et s'adaptent parfaitement sans aucun défilement horizontal.
 - Difficulté qui reste :
+  Toujours croiser les affirmations de l'agent avec une vérification manuelle dans le code et les DevTools pour débusquer les hallucinations.
 
 ### J1-09 · 🧠 Un cerveau à règles, par prompts — [fiche](checkpoints/J1-09-cerveau-a-regles.md)
 
