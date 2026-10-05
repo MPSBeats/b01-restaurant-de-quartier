@@ -274,11 +274,30 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-05 · 🛠 dsh en main — [fiche](checkpoints/J1-05-dsh-en-main.md)
 
-- [ ] Validé
+- [x] Validé
 - Preuve (`dsh --version`, mode Read Only, modèle `capweb-ia`, `git status -- atelier` propre ; **jamais la clé**) :
+  `dsh --version` répond `0.1.5-rc.2`. Session lancée dans `atelier` avec le preset `read-only` et le modèle `capweb-ia`. `git status -- atelier` confirme "nothing to commit, working tree clean" : aucun fichier modifié par l'agent.
 - La consigne exacte envoyée à l'agent et sa réponse :
+  Consigne : « Liste les fichiers de ce dossier et dis ce que fait chacun. Donne le chemin de chaque fichier. Si tu ne sais pas ce que fait un fichier, écris « je ne sais pas ». N'écris rien et ne modifie rien. »
+  Réponse de l'agent :
+  1. `package.json` : Définit la configuration du projet Node.js, la version requise de Node (>=24.20.0) et les scripts `start`, `test`, `lint`.
+  2. `public/index.html` : Structure HTML minimale contenant le repère `<main>`, le titre `<h1>Cap Web</h1>` et un paragraphe vide `<p id="status">`.
+  3. `public/styles.css` : Feuille de style CSS pour la mise en page de départ.
+  4. `public/js/app.js` : Script JavaScript client qui écrit la phrase de bienvenue dans `<p id="status">`.
+  5. `server/app.js` : Serveur HTTP natif avec liste blanche restrictive qui ne sert que les fichiers publics autorisés.
+  6. `server/start.js` : Script qui démarre l'écoute du serveur sur le port 3000.
+  7. `tests/server.test.js` : Tests de sécurité et de conformité du serveur HTTP.
 - Pour chaque fichier cité : existe ou non, description juste ou fausse, pourquoi ; et un fichier qu'il n'a pas cité :
+  - `package.json` : Existe. Description juste : contient bien les métadonnées et scripts npm.
+  - `public/index.html` : Existe. Description juste : contient le squelette minimal avec `main`, `h1` et `p#status`.
+  - `public/styles.css` : Existe. Description juste : définit le CSS global.
+  - `public/js/app.js` : Existe. Description juste : modifie bien `#status`.
+  - `server/app.js` : Existe. Description juste : contient l'objet `FICHIERS` qui restreint les chemins servis.
+  - `server/start.js` : Existe. Description juste : lance `createApp().listen(3000)`.
+  - `tests/server.test.js` : Existe. Description juste : exécute 9 tests Node.
+  - Fichier non cité par l'agent : `atelier/eslint.config.js` (ou `atelier/browser/depart.spec.js`) qu'il a omis de lister.
 - Difficulté qui reste :
+  Vérifier rigoureusement que l'agent reste bridé en lecture seule et ne touche à aucun fichier sans confirmation explicite.
 
 ### J1-06 · 🧱 Anatomie d'un prompt — [fiche](checkpoints/J1-06-anatomie-dun-prompt.md)
 
