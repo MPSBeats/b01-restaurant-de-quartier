@@ -131,6 +131,18 @@ button:hover {
   font-weight: 700;
 }
 
+#effacer {
+  background: #7f8c8d;
+  border-color: #5d6d7e;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  margin-top: 0.5rem;
+}
+
+#effacer:hover {
+  background: #5d6d7e;
+}
+
 footer {
   font-size: 0.9rem;
 }

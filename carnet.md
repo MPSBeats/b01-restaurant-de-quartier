@@ -371,12 +371,12 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 | 2 | Étape 2 : Dans public/js/app.js, ajouter l'écouteur de clic pour copier le texte du bouton dans textarea#message sans soumettre. | +12 lignes dans app.js. Écouteur forEach sur les boutons de suggestions. | Accepté : le texte est copié fidèlement sans déclencher l'envoi du formulaire. |
 | 3 | Étape 3 : Dans public/js/app.js, ajouter le focus sur le champ et la mise à jour du statut après copie. | +5 lignes dans app.js (appel de focus() et statut textContent). | Accepté : l'utilisateur est guidé et peut immédiatement éditer le texte. |
 | 4 | Correction J1-08 : Dans styles.css, autoriser le retour à la ligne des boutons suggestions et focus visible. | +6 lignes dans styles.css (white-space, text-align, max-width, outline focus). | Accepté : supprime tout débordement horizontal à 360 px et renforce l'accessibilité clavier. |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 5 | J1-09 Étape 1 : Dans app.js, interception du submit, affichage "Vous : ...", refus du vide avec statut, et textContent. | +16 lignes dans app.js. Gestion propre des formulaires sans innerHTML. | Accepté : message vide refusé, chevrons préservés. |
+| 6 | J1-09 Étape 2 : Créer public/js/brain.js avec validateMessage et replyTo (salut, aide, test, repli). Déclarer dans server/app.js. | +30 lignes dans brain.js, +2 lignes dans server/app.js. Module pur sans DOM. | Accepté : fonctions pures isolées et testables, route servie en 200. |
+| 7 | J1-09 Étape 3 : Dans app.js, importer brain.js et ajouter la réponse "Cap Web : ...". | +8 lignes dans app.js. Import propre et affichage de la réponse du bot. | Accepté : le dialogue alterné utilisateur / bot s'affiche parfaitement. |
+| 8 | J1-09 Étape 4 : Dans brain.js, intégrer la limite N=200 et les deux mots du cahier (menu et reservation). | +14 lignes dans brain.js. Ajout de MAX_LONGUEUR = 200 et des cas dans replyTo. | Accepté : respect scrupuleux du cahier personnel du binôme b01. |
+| 9 | J1-09 Étape 5 : Créer public/js/view.js avec renderMessages. Migrer l'historique dans app.js et déclarer dans server/app.js. | +12 lignes dans view.js, +2 lignes dans server/app.js, nettoyage de app.js. | Accepté : séparation MVC propre, suppression des createElement de app.js. |
+| 10 | J1-09 Étape 6 : Dans app.js et index.html, persistance localStorage protégée par try/catch et bouton #effacer avec confirm(). | +24 lignes dans app.js, +1 ligne dans index.html, +12 lignes dans styles.css. | Accepté : persistance robuste aux corruptions et réinitialisation complète. |
 
 ### J1-08 · 🔎 Revue de la page — [fiche](checkpoints/J1-08-revue-de-la-page.md)
 
@@ -404,15 +404,18 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-09 · 🧠 Un cerveau à règles, par prompts — [fiche](checkpoints/J1-09-cerveau-a-regles.md)
 
-- [ ] Validé
+- [x] Validé
 - Preuve (comportements vérifiés : « Vous : … », message vide, `<b>gras</b>`, mes deux mots, ma limite ; `/js/brain.js` et `/js/view.js` affichés ; F5 ; « Effacer ») :
-- Mes six demandes et leurs verdicts : dans le journal des décisions ci-dessus.
+  Tous les comportements vérifiés : "Vous : ..." et "Cap Web : ..." s'ajoutent à chaque envoi ; message vide rejeté avec statut explicite et focus conservé ; `<b>gras</b>` s'affiche avec ses chevrons sans injection HTML ; nos mots `menu` et `reservation` ont leurs réponses dédiées du restaurant ; la limite de 200 caractères valide 200 caractères et rejette 201 ; `brain.js` et `view.js` sont servis en 200 ; F5 conserve la conversation ; bouton "Effacer la conversation" demande confirmation et réinitialise tout.
+- Mes six demandes et leurs verdicts : dans le journal des décisions ci-dessus (lignes 5 à 10).
 - Le rôle de chaque fichier, en une phrase chacun :
-  - `app.js` :
-  - `brain.js` :
-  - `view.js` :
+  - `app.js` : Contrôleur principal qui écoute les événements de l'interface, manipule l'état global (`historique`), fait le pont entre la logique métier et la vue, et gère la persistance dans `localStorage`.
+  - `brain.js` : Module de logique métier pure sans accès au DOM ni à window, responsable de la validation des chaînes de caractères (limite de 200 caractères) et du calcul des réponses selon les règles prédéfinies.
+  - `view.js` : Module de vue responsable du rendu sécurisé des messages dans le conteneur DOM en utilisant `textContent` et `replaceChildren` pour prévenir toute faille XSS.
 - Ce que j'ai vu quand j'ai mis `{pas du json` dans la mémoire :
+  Le bloc `try / catch` a intercepté l'erreur de décodage JSON sans faire planter l'application : l'historique a été réinitialisé à un tableau vide et le statut a affiché "Mémoire locale réinitialisée.".
 - Difficulté qui reste :
+  Penser à toujours synchroniser la liste blanche du serveur HTTP natif lors de l'ajout d'un nouveau fichier JS client.
 
 ### J1-10 · 🧪 Épreuve de l'explication — [fiche](checkpoints/J1-10-epreuve-explication.md)
 
