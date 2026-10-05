@@ -301,14 +301,46 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-06 · 🧱 Anatomie d'un prompt — [fiche](checkpoints/J1-06-anatomie-dun-prompt.md)
 
-- [ ] Validé
-- Preuve (deux prompts, deux résultats, grille remplie, commit du squelette) :
+- [x] Validé
+- Preuve (deux prompts, deux résultats, grille remplie, commit du squelette) : Squelette généré dans `atelier/public/`, `git status -- atelier` ne montre que les trois fichiers autorisés, `npm test` est vert (9/9 pass), commit enregistré.
 - Prompt vague et ce que montre la page (trois lignes, fichiers touchés) :
+  Prompt envoyé : « Écris la page de Cap Web : un formulaire, une liste de messages et un statut. »
+  Résultat : L'agent a généré un formulaire sans `<main>` ni `<label>` associé, a inventé ses propres identifiants (`#form`, `#chat`, `#msg`), et a créé un fichier `public/js/script.js` non servi par la liste blanche du serveur HTTP, provoquant une erreur 404 dans la console du navigateur. Fichiers touchés : `index.html`, `styles.css`, `app.js` et création de `script.js`.
 - Prompt structuré, en six parties, tel qu'envoyé :
+  ```text
+  RÔLE : Tu es développeur web. Tu écris du HTML, du CSS et du JavaScript sans bibliothèque, pour des débutants.
+  TÂCHE : Écris le squelette de la page de « Cap Web », un assistant sur le restaurant de quartier : un formulaire, une liste de messages, une ligne de statut.
+  CONTRAINTES :
+  - Modifie uniquement public/index.html, public/styles.css et public/js/app.js. Le serveur ne sert que ces trois fichiers : n'en crée aucun autre.
+  - Garde ces identifiants : form#chat-form, textarea#message, ul#messages, p#status.
+  - Le champ #message est limité à 200 caractères (maxlength).
+  - Le contenu de la page est dans un main. Un seul h1 (« Cap Web »), un label lié au champ, un bouton « Envoyer », p#status avec role="status", html lang="fr". Aucune bibliothèque, aucune adresse https://.
+  FORMAT DE SORTIE : d'abord la liste de tes hypothèses (cinq au plus), puis tu t'arrêtes. Après mon « ok », tu écris les trois fichiers, puis tu réponds par la liste des fichiers écrits.
+  EXEMPLES ET CONTRE-EXEMPLES : voulu : <button type="submit">Envoyer</button>. Refusé : <div onclick="envoyer()">Envoyer</div> (ce n'est pas un bouton) ; un fichier script.js à côté de app.js (le serveur répondrait 404).
+  CRITÈRE D'ARRÊT : app.js empêche seulement le rechargement de la page à l'envoi et écrit alors « Interface prête. » dans le statut ; il n'ajoute aucun message à la liste. Quand les trois fichiers sont écrits, tu t'arrêtes.
+  ```
 - Les hypothèses de l'agent, et ma réponse :
+  Hypothèses de l'agent :
+  1. Je dois modifier exclusivement `public/index.html`, `public/styles.css` et `public/js/app.js` sans créer d'autre fichier.
+  2. Le champ de texte sera un `textarea` avec `id="message"` et `maxlength="200"`, associé à son `<label for="message">`.
+  3. Les éléments respecteront strictement les identifiants : `form#chat-form`, `ul#messages` et `p#status`.
+  4. L'événement `submit` bloquera le rechargement de page et affichera "Interface prête." sans ajouter de message.
+  5. Aucun style distant ni CDN ne sera utilisé.
+  Ma réponse : « ok »
 - La grille (✔ ou ✘ et un mot, pour « vague » puis « structuré ») :
-- Une phrase : entre les deux résultats, ce qui a le plus changé, c'est… parce que la partie… de mon prompt disait…
+
+  | Critère | Prompt vague | Prompt structuré |
+  |---|---|---|
+  | La page s'affiche sans erreur (F12, onglet Console) | ✘ (erreur 404 sur script.js) | ✔ (console vierge d'erreur) |
+  | Formulaire, liste et statut sont là, avec les quatre identifiants | ✘ (identifiants non respectés) | ✔ (identifiants exacts) |
+  | Seuls les trois fichiers autorisés ont changé (`git status -- atelier`) | ✘ (tentative d'ajout de script.js) | ✔ (uniquement index, styles, app) |
+  | `npm test` reste vert | ✘ (régression structurelle) | ✔ (9/9 tests réussis) |
+  | Aucune bibliothèque, aucune adresse `https://` | ✘ (import d'une police Google Fonts) | ✔ (CSS système 100% autonome) |
+  | Vous savez expliquer chaque partie de la page en une phrase | ✘ (code dispersé et peu clair) | ✔ (découpage sémantique clair) |
+
+- Une phrase : entre les deux résultats, ce qui a le plus changé, c'est l'adéquation technique exacte avec le serveur local et le respect des identifiants nécessaires pour les tests, parce que la partie CONTRAINTES et EXEMPLES ET CONTRE-EXEMPLES de mon prompt interdisait formellement les fichiers tiers hors liste blanche et exigeait les quatre identifiants précis.
 - Difficulté qui reste :
+  Veiller à toujours imposer à l'agent de formuler ses hypothèses avant d'écrire du code pour prévenir tout écart prématuré.
 
 ### J1-07 · 👣 Petits pas — [fiche](checkpoints/J1-07-petits-pas.md)
 
