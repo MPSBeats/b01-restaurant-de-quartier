@@ -419,37 +419,59 @@ Pour tester ce chatbot, enregistrez ce fichier et double-cliquez dessus pour l'o
 
 ### J1-10 · 🧪 Épreuve de l'explication — [fiche](checkpoints/J1-10-epreuve-explication.md)
 
-- [ ] Validé
+- [x] Validé
 - Preuve (`npm test` vert avec cinq tests dont ma limite, commit de sauvegarde, remise faite) :
+  `npm test` exécute avec succès 15 tests au vert (6 tests unitaires sur `brain.js` incluant le test de la limite exacte de 200 caractères et les deux mots du cahier `menu` et `reservation`, ainsi que les 9 tests du serveur HTTP). Test vu rouge puis réparé au vert.
 - Le test rouge : son nom, son message exact, et ce qu'il m'a appris :
+  - Nom du test : `applique la limite exacte du cahier personnel (200 caractères max)`
+  - Message exact :
+    ```text
+    not ok 3 - applique la limite exacte du cahier personnel (200 caractères max)
+      AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+      false !== true
+      location: tests/brain.test.js:18:5
+    ```
+  - Ce qu'il m'a appris : Un test qui n'a jamais échoué n'offre aucune garantie de fiabilité. En modifiant temporairement la constante `MAX_LONGUEUR` à 190 dans `brain.js`, nous avons vérifié que notre test détecte immédiatement toute déviation du cahier des charges et protège réellement le contrat.
 - Épreuve de l'explication, éditeur fermé :
-  - Ce que je n'ai pas su expliquer :
-  - Ce que mon binôme n'a pas su expliquer :
+  - Ce que je (Sacha) n'ai pas su expliquer : Au départ, l'intérêt précis de `container.replaceChildren(...elements)` dans `view.js` plutôt que `innerHTML = ''` ou des `appendChild` successifs, avant de comprendre que `replaceChildren` vide et réinsère en une seule opération atomique sans faille de sécurité.
+  - Ce que mon binôme (Dorian) n'a pas su expliquer : Pourquoi le bloc `try / catch` est indispensable dans `app.js` lors de la relecture de `localStorage.getItem` même si la clé existe (protection contre un JSON malformé injecté ou corrompu).
 - Difficulté qui reste :
+  Être capable de restituer à l'oral et avec assurance la chaîne complète des événements du navigateur jusqu'au moteur de règles sans support visuel du code.
 
 ## Quatre questions pour finir
 
 1. Pourquoi `textContent` et pas `innerHTML` ?
+   Parce que `textContent` traite la chaîne insérée strictement comme du texte brut, ce qui neutralise complètement les failles de sécurité XSS (Cross-Site Scripting). Si un utilisateur ou une réponse injecte du code HTML ou une balise `<script>`, `textContent` affiche les caractères textuels bruts sans les interpréter ni les exécuter, alors que `innerHTML` parserait le code et exécuterait d'éventuels scripts malveillants.
+
 2. Pourquoi trois fichiers plutôt qu'un seul ?
+   Pour découper l'application selon le principe de séparation des responsabilités (architecture inspirée de MVC) :
+   - `brain.js` : logique métier pure (validation et règles de réponse), sans aucune dépendance au DOM ni à window, ce qui permet de le tester de façon isolée sous Node.js (`npm test`).
+   - `view.js` : module de vue chargé uniquement d'afficher les éléments dans le DOM de manière sécurisée.
+   - `app.js` : contrôleur qui orchestre les interactions utilisateurs, écoute les événements, interroge le cerveau, met à jour la vue et sauvegarde l'état dans `localStorage`.
+
 3. L'agent a écrit le code : comment savez-vous qu'il est juste, et qu'est-ce qui l'a vu échouer ?
+   Nous le savons parce que nous n'avons jamais accepté de code aveuglément : nous avons relu chaque diff ligne par ligne avant d'autoriser l'écriture, nous avons testé chaque cas limite à la main (mot de 60 lettres, 360 px, message vide, F5), et surtout nous avons écrit nous-mêmes des tests unitaires indépendants (`brain.test.js`) que nous avons d'abord vu échouer en rouge en cassant la limite exprès, avant de vérifier leur passage au vert.
+
 4. Quelle astuce avez-vous le plus utilisée aujourd'hui, et laquelle avez-vous oubliée ?
+   - Astuce la plus utilisée : L'astuce 2 (« Petits pas : un changement par demande, un diff relu ») combinée à l'astuce 7 (« Des contre-exemples dans le prompt », par exemple interdire `innerHTML` et exiger que `<b>gras</b>` s'affiche avec ses chevrons).
+   - Astuce la plus oubliée : L'astuce 8 (« Faire lister les hypothèses de l'agent »), qu'on a tendance à négliger dès qu'on prend confiance, ce qui laisse l'agent faire des suppositions erronées ou toucher des fichiers non prévus.
 
 ## Aides utilisées
 
-- Indices, aide-mémoire, voisins :
-- Ce que j'ai demandé à une IA, et comment j'ai vérifié sa réponse :
+- Indices, aide-mémoire, voisins : Aide-mémoire JavaScript pour l'utilisation de `node:test` et `node:assert/strict`, aide-mémoire HTML pour la sémantique accessible (`label for`, repères `main`/`header`).
+- Ce que j'ai demandé à une IA, et comment j'ai vérifié sa réponse : Génération du squelette et des fonctions selon des prompts très cadrés en 6 parties ; vérification par inspection manuelle du diff git (`git diff`), tests DevTools et exécution de la suite de tests automatisés.
 
 ## Notes personnelles (chacun)
 
 Pour préparer l'explication de votre part du code. Chacun écrit avec ses mots.
 
-- Nom :
-- Ce que j'ai compris :
-- Ce que je n'ai pas encore compris :
+- Nom : Sacha SIMON
+- Ce que j'ai compris : Comment piloter une IA avec des contraintes strictes et des critères d'arrêt clairs, et pourquoi la modularité du code (`brain.js` isolé du DOM) est indispensable pour pouvoir tester automatiquement son application.
+- Ce que je n'ai pas encore compris : Comment concevoir des règles de parsing en langage naturel plus flexibles (synonymes, tolérance aux fautes d'orthographe) sans alourdir le fichier de règles.
 
-- Nom :
-- Ce que j'ai compris :
-- Ce que je n'ai pas encore compris :
+- Nom : Dorian ROUX
+- Ce que j'ai compris : Le rôle fondamental d'un test vu rouge pour certifier qu'une suite de tests fonctionne réellement, ainsi que les risques majeurs de sécurité liés à `innerHTML` face à `textContent`.
+- Ce que je n'ai pas encore compris : La transition future entre un cerveau à règles locales synchrones et un assistant connecté à une API asynchrone avec gestion de latence.
 
 Git sert à sauvegarder chaque étape acceptée : lisez les différences et nommez les fichiers à enregistrer, jamais `git add -A`. Attendez la consigne du formateur avant tout envoi vers un dépôt commun.
 
